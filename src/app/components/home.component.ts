@@ -1,4 +1,6 @@
-import { AfterViewInit, ChangeDetectorRef, Component, ElementRef, HostListener, OnInit, ViewChild, NgZone } from '@angular/core';
+import type { AfterViewInit, ElementRef, OnInit } from '@angular/core';
+import { ChangeDetectorRef, NgZone } from '@angular/core';
+import { Component, HostListener, ViewChild } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 
 import * as path from 'path';
@@ -25,29 +27,32 @@ import { WordFrequencyService, WordFreqAndHeight } from '../pipes/word-frequency
 import { SortOrderComponent } from './sort-order/sort-order.component';
 
 // Interfaces
-import { FinalObject, ImageElement, ScreenshotSettings, ResolutionString } from '../../../interfaces/final-object.interface';
-import { ImportStage } from '../../../node/main-support';
-import { ServerDetails } from './statistics/statistics.component';
-import { RemoteSettings, SettingsButtonSavedProperties, SettingsObject } from '../../../interfaces/settings-object.interface';
-import { SortType } from '../pipes/sorting.pipe';
-import { WizardOptions } from '../../../interfaces/wizard-options.interface';
-import {
-  AllSupportedBottomTrayViews,
-  AllSupportedViews,
+import type { FinalObject, ImageElement, ScreenshotSettings, ResolutionString } from '../../../interfaces/final-object.interface';
+import type { ImportStage } from '../../../node/main-support';
+import type { ServerDetails } from './statistics/statistics.component';
+import type { RemoteSettings, SettingsButtonSavedProperties, SettingsObject } from '../../../interfaces/settings-object.interface';
+import type { SortType } from '../pipes/sorting.pipe';
+import type { WizardOptions } from '../../../interfaces/wizard-options.interface';
+import type {
   HistoryItem,
   RemoteVideoClick,
   RenameFileResponse,
   SupportedTrayView,
   SupportedView,
-  VideoClickEmit,
+  VideoClickEmit} from '../../../interfaces/shared-interfaces';
+import {
+  AllSupportedBottomTrayViews,
+  AllSupportedViews
 } from '../../../interfaces/shared-interfaces';
 
 // Constants, etc
-import { AppState, SupportedLanguage, DefaultImagesPerRow, RowNumbers } from '../common/app-state';
+import type { SupportedLanguage, RowNumbers } from '../common/app-state';
+import { AppState, DefaultImagesPerRow } from '../common/app-state';
 import { Filters, filterKeyToIndex, FilterKeyNames } from '../common/filters';
 import { GLOBALS } from '../../../node/main-globals';
 import { LanguageLookup } from '../common/languages';
-import { SettingsButtons, SettingsButtonsGroups, SettingsButtonKey, SettingsButtonsType } from '../common/settings-buttons';
+import type { SettingsButtonKey, SettingsButtonsType } from '../common/settings-buttons';
+import { SettingsButtons, SettingsButtonsGroups } from '../common/settings-buttons';
 
 // Animations
 import {
@@ -105,7 +110,7 @@ export class HomeComponent implements OnInit, AfterViewInit {
   @ViewChild('magicSearch', { static: false }) magicSearch: ElementRef;
   @ViewChild('searchRef',   { static: false }) searchRef:   ElementRef;
 
-  @ViewChild(SortOrderComponent) sortOrderRef:SortOrderComponent;
+  @ViewChild(SortOrderComponent) sortOrderRef: SortOrderComponent;
 
   @ViewChild(VirtualScrollerComponent, { static: false }) virtualScroller: VirtualScrollerComponent;
 
@@ -128,7 +133,7 @@ export class HomeComponent implements OnInit, AfterViewInit {
   windowResizeTimeout = null;
 
   newVideoImportTimeout = null;
-  newVideoImportCounter: number = 0;
+  newVideoImportCounter = 0;
 
   // ========================================================================
   // App state / UI state
@@ -144,7 +149,7 @@ export class HomeComponent implements OnInit, AfterViewInit {
   // Import / extraction progress
   // ------------------------------------------------------------------------
 
-  extractionPercent: number = 1;
+  extractionPercent = 1;
   importStage: ImportStage = 'done';
   progressString = '';
 
@@ -152,11 +157,11 @@ export class HomeComponent implements OnInit, AfterViewInit {
   // Gallery thumbnails
   // ------------------------------------------------------------------------
 
-  currentImgsPerRow: number = 5;
+  currentImgsPerRow = 5;
   galleryWidth: number;
   imgsPerRow: RowNumbers = DefaultImagesPerRow;
-  previewHeight: number = 144;
-  previewHeightRelated: number = 144;   // For the Related Videos tab:
+  previewHeight = 144;
+  previewHeightRelated = 144;   // For the Related Videos tab:
   previewWidth: number;
   previewWidthRelated: number;          // For the Related Videos tab:
   textPaddingHeight: number;            // for text padding below filmstrip or thumbnail element
@@ -165,33 +170,42 @@ export class HomeComponent implements OnInit, AfterViewInit {
   // Duration filter
   // ------------------------------------------------------------------------
 
-  durationLeftBound: number = 0;
-  durationOutlierCutoff: number = 0;
-  durationRightBound: number = Infinity;
+  durationLeftBound = 0;
+  durationOutlierCutoff = 0;
+  durationRightBound = Infinity;
 
   // ========================================================================
   // Size filter
   // ------------------------------------------------------------------------
 
-  sizeLeftBound: number = 0;
-  sizeOutlierCutoff: number = 0;
-  sizeRightBound: number = Infinity;
+  sizeLeftBound = 0;
+  sizeOutlierCutoff = 0;
+  sizeRightBound = Infinity;
 
   // ========================================================================
   // Times Played filter
   // ------------------------------------------------------------------------
 
-  timesPlayedCutoff: number = 0;
-  timesPlayedLeftBound: number = 0;
-  timesPlayedRightBound: number = Infinity;
+  timesPlayedCutoff = 0;
+  timesPlayedLeftBound = 0;
+  timesPlayedRightBound = Infinity;
+
+  // ========================================================================
+  // Year filter
+  // ------------------------------------------------------------------------
+
+  yearMinCutoff = 0;
+  yearCutoff = 0;
+  yearLeftBound = 0;
+  yearRightBound = Infinity;
 
   // ========================================================================
   // Frequency / histogram
   // ------------------------------------------------------------------------
 
   resolutionFreqArr: number[];
-  freqLeftBound: number = 0;
-  freqRightBound: number = 4;
+  freqLeftBound = 0;
+  freqRightBound = 4;
   resolutionNames: ResolutionString[] = ['SD', '720', '1080', '4K'];
 
   // ========================================================================
@@ -199,8 +213,8 @@ export class HomeComponent implements OnInit, AfterViewInit {
   // ------------------------------------------------------------------------
 
   starRatingFreqArr: number[];
-  starLeftBound: number = 0;
-  starRightBound: number = 6;
+  starLeftBound = 0;
+  starRightBound = 6;
   starRatingNames: string[] = ['N/A', '1', '2', '3', '4', '5'];
 
   // ========================================================================
@@ -209,16 +223,16 @@ export class HomeComponent implements OnInit, AfterViewInit {
 
   currentRightClickedItem: ImageElement;
   renamingExtension: string;
-  renamingNow: boolean = false;
+  renamingNow = false;
   rightClickPosition: { x: number, y: number } = { x: 0, y: 0 };
-  rightClickShowing: boolean = false;
+  rightClickShowing = false;
 
   // ========================================================================
   // Thumbnail Sheet Overlay Display
   // ------------------------------------------------------------------------
 
   sheetItemToDisplay: ImageElement;
-  sheetOverlayShowing: boolean = false;
+  sheetOverlayShowing = false;
 
   // ========================================================================
   // Variables for the wizard during import
@@ -276,7 +290,7 @@ export class HomeComponent implements OnInit, AfterViewInit {
   numberOfVideosFound: number; // after applying all search filters
 
   findMostSimilar: string; // for finding similar files to this one
-  showSimilar: boolean = false; // to toggle the similarity pipe
+  showSimilar = false; // to toggle the similarity pipe
 
   shuffleTheViewNow = 0; // dummy number to force re-shuffle current view
 
@@ -285,18 +299,18 @@ export class HomeComponent implements OnInit, AfterViewInit {
   timeExtractionStarted;   // time remaining calculator
   timeExtractionRemaining; // time remaining calculator
 
-  deletePipeHack: boolean = false; // to force deletePipe to update
+  deletePipeHack = false; // to force deletePipe to update
 
-  folderNavigationScrollOffset: number = 0; // when in folder view and returning back to root
-  folderViewNavigationPath: string = '';
+  folderNavigationScrollOffset = 0; // when in folder view and returning back to root
+  folderViewNavigationPath = '';
 
   batchTaggingMode = false; // when batch tagging is enabled
 
   latestVersionAvailable: string;
 
-  tagTypeAhead: string = '';
+  tagTypeAhead = '';
 
-  allFinishedScanning: boolean = true;
+  allFinishedScanning = true;
 
   lastRenamedFileHack: ImageElement;
 
@@ -445,7 +459,7 @@ export class HomeComponent implements OnInit, AfterViewInit {
     this.electronService.ipcRenderer.on('file-not-found', (event) => {
       this.zone.run(() => {
         this.modalService.openSnackbar(this.translate.instant('SETTINGS.fileNotFound'));
-      })
+      });
     });
 
     // when `remote-control` requests to open video
@@ -459,7 +473,7 @@ export class HomeComponent implements OnInit, AfterViewInit {
         wifi: ip,
         host: hostname,
         port: port
-      }
+      };
 
       console.log(serverDetails);
       this.serverDetailsBehaviorSubject.next(serverDetails);
@@ -472,7 +486,7 @@ export class HomeComponent implements OnInit, AfterViewInit {
     });
 
     // when `remote-control` requests currently-showing gallery view
-    this.electronService.ipcRenderer.on('remote-send-new-data', (event, video: RemoteVideoClick) => {
+    this.electronService.ipcRenderer.on('remote-send-new-data', (event) => {
       console.log('requesting new data!!');
 
       const showNotConnected: ImageElement[] = JSON.parse(JSON.stringify(this.pipeSideEffectService.galleryShowing));
@@ -484,14 +498,6 @@ export class HomeComponent implements OnInit, AfterViewInit {
       console.log(showNotConnected);
 
       this.electronService.ipcRenderer.send('latest-gallery-view', showNotConnected);
-    });
-
-    // Closing of Window was issued by Electron
-    this.electronService.remote.getCurrentWindow().on('close', () => {
-      // Check to see if this was not originally triggered by Title-Bar to avoid double saving of settings
-      if (!this.isClosing) {
-        this.initiateClose();
-      }
     });
 
     // When Node succeeds or fails to rename a file that Angular requested to rename
@@ -602,10 +608,11 @@ export class HomeComponent implements OnInit, AfterViewInit {
 
       const rootFolder: string = this.sourceFolderService.selectedSourceFolder[sourceIndex].path;
 
-      let somethingDeleted: boolean = false;
+      let somethingDeleted = false;
 
       this.imageElementService.imageElements
-        .filter((element: ImageElement) => { return element.inputSource == sourceIndex })
+        // tslint:disable-next-line:triple-equals
+        .filter((element: ImageElement) => { return element.inputSource == sourceIndex; })
         // notice the loosey-goosey comparison! this is because number  ^^  string comparison happening here!
         .forEach((element: ImageElement) => {
           // console.log(element.fileName);
@@ -626,7 +633,8 @@ export class HomeComponent implements OnInit, AfterViewInit {
     // mark the element in `imageElements[]` as `deleted`
     this.electronService.ipcRenderer.on('single-file-deleted', (event, sourceIndex: number, partialPath: string) => {
       this.imageElementService.imageElements
-        .filter((element: ImageElement) => { return element.inputSource == sourceIndex })
+        // tslint:disable-next-line:triple-equals
+        .filter((element: ImageElement) => { return element.inputSource == sourceIndex; })
         // notice the loosey-goosey comparison! this is because number  ^^  string comparison happening here!
         .forEach((element: ImageElement) => {
           if (
@@ -725,6 +733,7 @@ export class HomeComponent implements OnInit, AfterViewInit {
       this.setUpDurationFilterValues(this.imageElementService.imageElements);
       this.setUpSizeFilterValues(this.imageElementService.imageElements);
       this.setUpTimesPlayedFilterValues(this.imageElementService.imageElements);
+      this.setUpYearFilterValues(this.imageElementService.imageElements);
 
       if (this.sortOrderRef.sortFilterElement) {
         this.sortOrderRef.sortFilterElement.nativeElement.value = this.sortType;
@@ -764,6 +773,9 @@ export class HomeComponent implements OnInit, AfterViewInit {
       if (settingsObject.remoteSettings) {
         this.remoteSettings = settingsObject.remoteSettings;
       }
+      if (settingsObject.wizardOptions) {
+        this.wizard = settingsObject.wizardOptions;
+      }
     });
 
     this.electronService.ipcRenderer.on('please-open-wizard', (event, firstRun) => {
@@ -778,8 +790,11 @@ export class HomeComponent implements OnInit, AfterViewInit {
     });
 
     // This happens when the computer is about to SHUT DOWN
+    // or user closed the app through taskbar or title bar
     this.electronService.ipcRenderer.on('please-shut-down-ASAP', (event) => {
-      this.initiateClose();
+      if (!this.isClosing) {
+        this.initiateClose();
+      }
     });
 
     // gets called if `trash` successfully removed the file
@@ -811,7 +826,7 @@ export class HomeComponent implements OnInit, AfterViewInit {
       // important for when user renames a folder for example
       this.imageElementService.imageElements
         .filter((currentElements: ImageElement) => {
-          return currentElements.deleted
+          return currentElements.deleted;
         })
         .forEach((deletedElement: ImageElement) => {
           if (deletedElement.hash === element.hash) {
@@ -895,7 +910,7 @@ export class HomeComponent implements OnInit, AfterViewInit {
       this.resetFinalArrayRef();
     } else {
       this.newVideoImportTimeout = setTimeout(() => {
-        this.resetFinalArrayRef()
+        this.resetFinalArrayRef();
       }, 3000);
     }
   }
@@ -915,6 +930,7 @@ export class HomeComponent implements OnInit, AfterViewInit {
    */
   deleteInputSourceFiles(sourceIndex: number): void {
     this.imageElementService.imageElements.forEach((element: ImageElement) => {
+      // tslint:disable-next-line:triple-equals
       if (element.inputSource == sourceIndex) { // TODO -- stop the loosey goosey `==` and figure out `string` vs `number`
         element.deleted = true;
         this.imageElementService.finalArrayNeedsSaving = true;
@@ -1023,12 +1039,12 @@ export class HomeComponent implements OnInit, AfterViewInit {
   }
 
   public initiateMaximize(): void {
-    if (this.appMaximized === false) {
-      this.electronService.ipcRenderer.send('maximize-window');
-      this.appMaximized = true;
-    } else {
+    if (this.appMaximized) {
       this.electronService.ipcRenderer.send('un-maximize-window');
       this.appMaximized = false;
+    } else {
+      this.electronService.ipcRenderer.send('maximize-window');
+      this.appMaximized = true;
     }
   }
 
@@ -1127,7 +1143,7 @@ export class HomeComponent implements OnInit, AfterViewInit {
 
       const execPath: string = this.appState.preferredVideoPlayer;
 
-      const finalArgs: string = `${this.getVideoPlayerArgs(execPath, time)} ${this.appState.videoPlayerArgs}`;
+      const finalArgs = `${this.getVideoPlayerArgs(execPath, time)} ${this.appState.videoPlayerArgs}`;
       this.electronService.ipcRenderer.send('open-media-file-at-timestamp', execPath, fullPath, finalArgs);
     } else {
       this.electronService.ipcRenderer.send('open-media-file', fullPath);
@@ -1149,7 +1165,7 @@ export class HomeComponent implements OnInit, AfterViewInit {
    */
   public getVideoPlayerArgs(playerPath: string, time: number): string {
     // if user doesn't want to open at timestamp, don't!
-    let args: string = '';
+    let args = '';
 
     if (this.settingsButtons['openAtTimestamp'].toggled) {
       if (playerPath.toLowerCase().includes('vlc')) {
@@ -1687,13 +1703,13 @@ export class HomeComponent implements OnInit, AfterViewInit {
       clipSnippets: 5,
       extractClips: false,
       futureHubName: '',
-      isFixedNumberOfScreenshots: true,
-      screenshotSizeForImport: 288, // default
+      isFixedNumberOfScreenshots: this.wizard.isFixedNumberOfScreenshots ?? true,
+      screenshotSizeForImport: this.wizard.screenshotSizeForImport ?? 288, // default
       selectedOutputFolder: '',
       selectedSourceFolder: { 0: { path: '', watch: false }},
       showWizard: true,
-      ssConstant: 10,
-      ssVariable: 10,
+      ssConstant: this.wizard.ssConstant ?? 10,
+      ssVariable: this.wizard.ssVariable ?? 5,
     };
     this.toggleSettings();
   }
@@ -1902,7 +1918,7 @@ export class HomeComponent implements OnInit, AfterViewInit {
       remoteSettings: this.remoteSettings,
       shortcuts: this.shortcutService.keyToActionMap,
       vhaFileHistory: this.vhaFileHistory,
-      windowSizeAndPosition: undefined, // is added in `cose-window` in `main.ts`
+      wizardOptions: this.wizard
     };
   }
 
@@ -2207,6 +2223,13 @@ export class HomeComponent implements OnInit, AfterViewInit {
 
   }
 
+  newYearFilterSelected(selection: number[]): void {
+
+      this.yearLeftBound = selection[0];
+      this.yearRightBound = selection[1];
+
+  }
+
   setUpDurationFilterValues(finalArray: ImageElement[]): void {
     const durations: number[] = finalArray.map((element) => { return element.duration; });
 
@@ -2227,6 +2250,14 @@ export class HomeComponent implements OnInit, AfterViewInit {
     this.timesPlayedCutoff = Math.max(...timesPlayed);
   }
 
+  // need to filter otherwise cutoff will be NaN
+  setUpYearFilterValues(finalArray: ImageElement[]): void {
+    const year: number[] = finalArray.map((element) => { return element.year; });
+    const filtrate = el => Number.isInteger(el) && el > 0;
+    const yearFiltered = year.filter(filtrate);
+    this.yearMinCutoff = Math.min(...yearFiltered) - 1;
+    this.yearCutoff = Math.max(...yearFiltered);
+  }
   /**
    * Given an array of numbers
    * returns the cutoff for outliers

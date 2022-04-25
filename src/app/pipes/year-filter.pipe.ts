@@ -4,12 +4,12 @@ import { Pipe } from '@angular/core';
 import type { ImageElement } from '../../../interfaces/final-object.interface';
 
 @Pipe({
-  name: 'lengthFilterPipe'
+  name: 'yearFilterPipe'
 })
-export class LengthFilterPipe implements PipeTransform {
+export class YearFilterPipe implements PipeTransform {
 
   /**
-   * Filter and show only videos that are within the resolution bounds
+   * Filter and show only videos that are within the year bounds
    * @param finalArray
    * @param render
    * @param leftBound
@@ -19,8 +19,8 @@ export class LengthFilterPipe implements PipeTransform {
 
     if (render && finalArray.length > 0) {
       return finalArray.filter((element) => {
-        const duration = element.duration;
-        if ( duration > leftBound && duration < rightBound) {
+        const year = element.year;
+        if ( year > leftBound && year < rightBound) {
           return true;
         } else {
           return false;

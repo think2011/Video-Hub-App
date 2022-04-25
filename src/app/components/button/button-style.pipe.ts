@@ -1,4 +1,5 @@
-import { Pipe, PipeTransform } from '@angular/core';
+import type { PipeTransform } from '@angular/core';
+import { Pipe } from '@angular/core';
 
 @Pipe({
   name: 'buttonStylePipe'
@@ -23,7 +24,7 @@ export class ButtonStylePipe implements PipeTransform {
 
       defaultSettingsButtonDark:        !flatIcons && darkMode,
       defaultSettingsButtonDarkToggled: !flatIcons && darkMode && toggled
-    }
+    };
 
   }
 

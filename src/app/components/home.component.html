@@ -223,7 +223,7 @@
     <!-- BUTTONS -->
 
     <app-settings
-      (changeLanguage)="changeLanguage($event)"
+      (changeLanguage)="changeLanguage($any($event))"
       (checkForNewVersion)="checkForNewVersion()"
       (chooseDefaultVideoPlayer)="chooseDefaultVideoPlayer()"
       (decreaseZoomLevel)="decreaseZoomLevel()"
@@ -231,7 +231,7 @@
       (increaseZoomLevel)="increaseZoomLevel()"
       (openOnlineHelp)="openOnlineHelp()"
       (resetZoomLevel)="resetZoomLevel()"
-      (toggleButton)="toggleButton($event)"
+      (toggleButton)="toggleButton($any($event))"
       (toggleHideButton)="toggleHideButton($event)"
 
       [appState]="appState"
@@ -318,7 +318,7 @@
 
       <!-- ALL THE BUTTONS IN THE RIBBON -->
       <app-ribbon
-        (toggleButton)="toggleButton($event)"
+        (toggleButton)="toggleButton($any($event))"
         [appState]="appState"
         [settingsButtonsGroups]="settingsButtonsGroups"
         [settingsButtons]="settingsButtons"
@@ -543,6 +543,20 @@
         ></app-slider-filter>
       </div>
 
+      <!-- yearFilter -->
+      <div *ngIf="settingsButtons['yearFilter'].toggled">
+
+        <app-slider-filter
+            (newSliderFilterSelected)="newYearFilterSelected($event)"
+            [darkMode]="settingsButtons['darkMode'].toggled"
+            [labelFormatPipe]="'yearPipe'"
+            [maximumValue]="yearCutoff"
+            [minimumValue]="yearMinCutoff"
+            [yearFilter]="true"
+            [steps]="50"
+        ></app-slider-filter>
+      </div>
+
       <!-- resolution filter & its frequency histogram -->
       <app-resolution-filter
         (newResFilterSelected)="newResFilterSelected($event)"
@@ -730,6 +744,10 @@
                 | timesPlayedFilterPipe : settingsButtons['timesPlayedFilter'].toggled
                                         : timesPlayedLeftBound
                                         : timesPlayedRightBound
+
+                | yearFilterPipe : settingsButtons['yearFilter'].toggled
+                                 : yearLeftBound
+                                 : yearRightBound
 
                 | resolutionFilterPipe : settingsButtons['resolutionFilter'].toggled
                                        : freqLeftBound
@@ -1109,9 +1127,9 @@
     class="cloud-frequency"
   >
     <div class="word-cloud-buttons">
-      <app-button (toggleButton)="toggleButton($event)" [button]="'manualTags'"     [settingsButtons]="settingsButtons"></app-button>
-      <app-button (toggleButton)="toggleButton($event)" [button]="'autoFileTags'"   [settingsButtons]="settingsButtons"></app-button>
-      <app-button (toggleButton)="toggleButton($event)" [button]="'autoFolderTags'" [settingsButtons]="settingsButtons"></app-button>
+      <app-button (toggleButton)="toggleButton($any($event))" [button]="'manualTags'"     [settingsButtons]="settingsButtons"></app-button>
+      <app-button (toggleButton)="toggleButton($any($event))" [button]="'autoFileTags'"   [settingsButtons]="settingsButtons"></app-button>
+      <app-button (toggleButton)="toggleButton($any($event))" [button]="'autoFolderTags'" [settingsButtons]="settingsButtons"></app-button>
     </div>
 
     <div

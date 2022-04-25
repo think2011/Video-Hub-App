@@ -1,6 +1,6 @@
 import { Component, Input, HostListener } from '@angular/core';
 import { ShortcutsService, CustomShortcutAction } from './shortcuts.service';
-import { SettingsButtonKey } from '../../common/settings-buttons';
+import type { SettingsButtonKey } from '../../common/settings-buttons';
 
 @Component({
   selector: 'app-shortcuts',
@@ -11,7 +11,7 @@ export class ShortcutsComponent {
 
   @Input() macVersion: boolean;
 
-  isReadyToReceiveKey: boolean = false;
+  isReadyToReceiveKey = false;
   shortcutToChange: SettingsButtonKey | CustomShortcutAction;
 
   @HostListener('window:keydown', ['$event'])
@@ -55,7 +55,7 @@ export class ShortcutsComponent {
 
     // 'quit',           // w - hardcoded in template
     // 'quit',           // q - hardcoded in template
-  ]
+  ];
 
   constructor(
     public shortcutService: ShortcutsService

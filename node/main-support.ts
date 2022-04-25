@@ -6,7 +6,8 @@
  * the same way each time they run no matter the outside state
  */
 
-import { GLOBALS, VhaGlobals } from './main-globals'; // TODO -- eliminate dependence on `GLOBALS` in this file!
+import type { VhaGlobals } from './main-globals';
+import { GLOBALS } from './main-globals'; // TODO -- eliminate dependence on `GLOBALS` in this file!
 
 import * as path from 'path';
 
@@ -14,9 +15,10 @@ const exec = require('child_process').exec;
 const ffprobePath = require('@ffprobe-installer/ffprobe').path.replace('app.asar', 'app.asar.unpacked');
 const fs = require('fs');
 const hasher = require('crypto').createHash;
-import { Stats } from 'fs';
+import type { Stats } from 'fs';
 
-import { FinalObject, ImageElement, ScreenshotSettings, InputSources, ResolutionString, NewImageElement } from '../interfaces/final-object.interface';
+import type { FinalObject, ImageElement, ScreenshotSettings, InputSources, ResolutionString} from '../interfaces/final-object.interface';
+import { NewImageElement } from '../interfaces/final-object.interface';
 import { startFileSystemWatching, resetWatchers } from './main-extract-async';
 
 interface ResolutionMeta {
@@ -48,7 +50,7 @@ export function getHtmlPath(anyOsPath: string): string {
  */
 function labelVideo(width: number, height: number): ResolutionMeta {
   let label: ResolutionString = '';
-  let bucket: number = 0.5;
+  let bucket = 0.5;
   if (width === 3840 && height === 2160) {
     label = '4K';
     bucket = 3.5;
@@ -117,6 +119,7 @@ function getFileSizeDisplay(sizeInBytes: number): string {
  * Generate duration formatted as X:XX:XX
  * @param numOfSec
  */
+
 function getDurationDisplay(numOfSec: number): string {
 
   if (numOfSec === undefined || numOfSec === 0) {
@@ -168,7 +171,7 @@ function markDuplicatesAsDeleted(imagesArray: ImageElement[]): ImageElement[] {
       && element.inputSource === currentElement.inputSource
     ) {
       element.deleted = true;
-      console.log('DUPE FOUND: '+ element.fileName);
+      console.log('DUPE FOUND: ' + element.fileName);
     }
     currentElement = element;
   });
@@ -278,7 +281,7 @@ export function cleanUpFileName(original: string): string {
   return original.split('.').slice(0, -1).join('.')   // (1)
                  .split('_').join(' ')                // (2)
                  .split('.').join(' ')                // (3)
-                 .split(/\s+/).join(' ')              // (4)
+                 .split(/\s+/).join(' ');             // (4)
 }
 
 /**
@@ -302,16 +305,22 @@ function getBestStream(metadata) {
  */
 function getFileDuration(metadata): number {
   if (metadata?.streams?.[0]?.duration) {
-
+    
     return metadata.streams[0].duration;
 
   } else if (metadata?.format?.duration) {
 
     return   metadata.format.duration;
-
   } else {
     return 0;
   }
+}
+
+//Calculation of video bitrate in mb/s
+
+function getBitrate(fileSize,duration){
+  const bitrate = ((fileSize/1000)/duration)/1000;
+  return Math.round(bitrate*100)/100;
 }
 
 /**
@@ -324,12 +333,12 @@ function getFileDuration(metadata): number {
  * @param metadata
  */
  function getFps(metadata): number {
-   if(metadata?.streams?.[0]?.r_frame_rate) {
-     let fps = metadata.streams[0].r_frame_rate
-     let evalFps = eval(fps.toString());
+   if (metadata?.streams?.[0]?.r_frame_rate) {
+     const fps = metadata.streams[0].r_frame_rate;
+     const fpsParts = fps.split('/');
+     const evalFps = Number(fpsParts[0]) / Number(fpsParts[1]); // FPS is a fraction like `24000/1001`
      return Math.round(evalFps);
-   }
-   else {
+   } else {
      return 0;
    }
  }
@@ -385,10 +394,10 @@ function hashFileAsync(pathToFile: string, stats: Stats): Promise<string> {
     let data: Buffer;
 
     if (fileSize < sampleThreshold) {
-      data = fs.readFile(pathToFile, (err, data) => {
+      fs.readFile(pathToFile, (err, data2) => {
         if (err) { throw err; }
         // append the file size to the data
-        const buf = Buffer.concat([data, Buffer.from(fileSize.toString())]);
+        const buf = Buffer.concat([data2, Buffer.from(fileSize.toString())]);
         // make the magic happen!
         const hash = hasher('md5').update(buf.toString('hex')).digest('hex');
         resolve(hash);
@@ -396,10 +405,10 @@ function hashFileAsync(pathToFile: string, stats: Stats): Promise<string> {
     } else {
       data = Buffer.alloc(sampleSize * 3);
       fs.open(pathToFile, 'r', (err, fd) => {
-        fs.read(fd, data, 0, sampleSize, 0, (err, bytesRead, buffer) => { // read beginning of file
-          fs.read(fd, data, sampleSize, sampleSize, fileSize / 2, (err, bytesRead, buffer) => {
-            fs.read(fd, data, sampleSize * 2, sampleSize, fileSize - sampleSize, (err, bytesRead, buffer) => {
-              fs.close(fd, (err) => {
+        fs.read(fd, data, 0, sampleSize, 0, (err2, bytesRead, buffer) => { // read beginning of file
+          fs.read(fd, data, sampleSize, sampleSize, Math.floor(fileSize / 2), (err3, bytesRead2, buffer2) => {
+            fs.read(fd, data, sampleSize * 2, sampleSize, fileSize - sampleSize, (err4, bytesRead3, buffer3) => {
+              fs.close(fd, (err5) => {
                 // append the file size to the data
                 const buf = Buffer.concat([data, Buffer.from(fileSize.toString())]);
                 // make the magic happen!
@@ -442,8 +451,8 @@ export function extractMetadataAsync(
         const origWidth = stream.width || 0; // ffprobe does not detect it on some MKV streams
         const origHeight = stream.height || 0;
 
-        fs.stat(filePath, (err, fileStat) => {
-          if (err) {
+        fs.stat(filePath, (err2, fileStat) => {
+          if (err2) {
             reject();
           }
 
@@ -537,6 +546,7 @@ export function insertTemporaryFieldsSingle(element: ImageElement): ImageElement
   const resolution: ResolutionMeta = labelVideo(element.width, element.height);
   element.durationDisplay = getDurationDisplay(element.duration);
   element.fileSizeDisplay = getFileSizeDisplay(element.fileSize);
+  element.bitrate = getBitrate(element.fileSize, element.duration);
   element.resBucket = resolution.bucket;
   element.resolution = resolution.label;
   return element;
@@ -558,7 +568,7 @@ export function upgradeToVersion3(finalObject: FinalObject): void {
     };
     finalObject.version = 3;
     finalObject.images.forEach((element: ImageElement) => {
-      element.inputSource = 0
+      element.inputSource = 0;
       element.screens = computeNumberOfScreenshots(finalObject.screenshotSettings, element.duration);
       // update number of screens to account for too-many or too-few cases
       // as they were not handlede prior to version 3 release

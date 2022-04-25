@@ -1,4 +1,5 @@
-import { Pipe, PipeTransform } from '@angular/core';
+import type { PipeTransform } from '@angular/core';
+import { Pipe } from '@angular/core';
 
 @Pipe({
   name: 'timesPlayedPipe'
@@ -12,11 +13,11 @@ export class TimesPlayedPipe implements PipeTransform {
    */
   transform(timesPlayed: number): string {
     if (timesPlayed) {
-      const rounded = Math.floor(timesPlayed+1)
+      const rounded = Math.floor(timesPlayed + 1);
 
       console.log(rounded);
       if (!isFinite(rounded)) {
-        return "∞"
+        return '∞';
       }
 
       return rounded.toString(10);

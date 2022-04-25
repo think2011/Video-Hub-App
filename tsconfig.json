@@ -1,12 +1,11 @@
 {
-  "angularCompilerOptions": {
-    "fullTemplateTypeCheck": true
-  },
   "compileOnSave": false,
+  "angularCompilerOptions": {
+    "strictTemplates": true
+  },
   "compilerOptions": {
     "baseUrl": "",
     "declaration": false,
-    "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
     "lib": [
       "es2020",

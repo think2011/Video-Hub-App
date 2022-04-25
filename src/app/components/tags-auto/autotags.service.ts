@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 
 import { AutoTagsSaveService } from './tags-save.service';
 
-import { ImageElement } from '../../../../interfaces/final-object.interface';
+import type { ImageElement } from '../../../../interfaces/final-object.interface';
 
 export interface WordAndFreq {
   word: string;
@@ -12,7 +12,7 @@ export interface WordAndFreq {
 
 // Used to select words, allows for non-english characters
 // thank you to https://stackoverflow.com/a/48902765/5017391
-export const autoFileTagsRegex: RegExp = /[\p{L}\d]+/ug;
+export const autoFileTagsRegex = /[\p{L}\d]+/ug;
 
 @Injectable()
 export class AutoTagsService {
@@ -22,9 +22,9 @@ export class AutoTagsService {
 
   onlyFileNames: string[] = [];         // array with just clean file names toLowerCase
 
-  minWordLength: number = 3; // minimum, inclusive 3 => 3 letters or more for a word to be considered
-  oneWordMinInstances: number = 2; // runs after 2-word-instances created
-  twoWordMinInstances: number = 2; // items show up if 3 or more exist
+  minWordLength = 3; // minimum, inclusive 3 => 3 letters or more for a word to be considered
+  oneWordMinInstances = 2; // runs after 2-word-instances created
+  twoWordMinInstances = 2; // items show up if 3 or more exist
 
   cachedHub: string;
 
@@ -65,14 +65,13 @@ export class AutoTagsService {
             this.loadAddTags();
             this.loadRemoveTags();
 
-            resolve();
-
+            resolve(true);
           });
 
         });
 
       } else {
-        resolve();
+        resolve(true);
       }
 
     });
@@ -223,7 +222,7 @@ export class AutoTagsService {
    * Alphabetize any WordAndFreq[]
    * @param wordAndFreq
    */
-  private alphabetizeResults(wordAndFreq: WordAndFreq[]): any {
+  private alphabetizeResults(wordAndFreq: WordAndFreq[]): WordAndFreq[] {
     wordAndFreq.sort((x: any, y: any) => {
       const first = x.word;
       const second = y.word;
@@ -338,7 +337,7 @@ export class AutoTagsService {
 
     return new Promise((resolve, reject) => {
       // it is implied that `Worker` is supported
-      const worker = new Worker('./tags.worker', { type: 'module' });
+      const worker = new Worker(new URL('./tags.worker', import.meta.url), { type: 'module' });
 
       worker.onmessage = (message) => {
         resolve(message.data);
@@ -364,7 +363,7 @@ export class AutoTagsService {
 
     return new Promise((resolve, reject) => {
       // it is implied that `Worker` is supported
-      const worker = new Worker('./tags.worker', { type: 'module' });
+      const worker = new Worker(new URL('./tags.worker', import.meta.url), { type: 'module' });
 
       worker.onmessage = (message) => {
         resolve(message.data);
