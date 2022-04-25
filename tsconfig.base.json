@@ -2,6 +2,9 @@
   "compileOnSave": false,
   "compilerOptions": {
     "baseUrl": "",
+
+    "noImplicitReturns": false,
+    "noFallthroughCasesInSwitch": false,
     "declaration": false,
     "experimentalDecorators": true,
     "lib": [

@@ -1,10 +1,15 @@
 {
   "compileOnSave": false,
   "angularCompilerOptions": {
-    "strictTemplates": true
+    "strictTemplates": false,
+    "fullTemplateTypeCheck": true,
+    "strictInjectionParameters": true
   },
   "compilerOptions": {
     "baseUrl": "",
+
+    "noImplicitReturns": false,
+    "noFallthroughCasesInSwitch": false,
     "declaration": false,
     "experimentalDecorators": true,
     "lib": [
